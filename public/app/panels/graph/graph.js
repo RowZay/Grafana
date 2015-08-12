@@ -1,4 +1,5 @@
 define([
+
   'angular',
   'jquery',
   'kbn',
@@ -12,26 +13,27 @@ define([
   'jquery.flot.stack',
   'jquery.flot.stackpercent',
   'jquery.flot.fillbelow',
-  'jquery.flot.crosshair'
-],
-function (angular, $, kbn, moment, _, GraphTooltip) {
-  'use strict';
+  'jquery.flot.crosshair',
+  'jquery.flot.dashes'
+  ],
+  function (angular, $, kbn, moment, _, GraphTooltip) {
+    'use strict';
 
-  var module = angular.module('grafana.directives');
+    var module = angular.module('grafana.directives');
+    
+    module.directive('grafanaGraph', function($rootScope, timeSrv) {
+      return {
+        restrict: 'A',
+        template: '<div> </div>',
+        link: function(scope, elem) {
+          var dashboard = scope.dashboard;
+          var data, annotations;
+          var sortedSeries;
+          var graphHeight;
+          var legendSideLastValue = null;
+          scope.crosshairEmiter = false;
 
-  module.directive('grafanaGraph', function($rootScope, timeSrv) {
-    return {
-      restrict: 'A',
-      template: '<div> </div>',
-      link: function(scope, elem) {
-        var dashboard = scope.dashboard;
-        var data, annotations;
-        var sortedSeries;
-        var graphHeight;
-        var legendSideLastValue = null;
-        scope.crosshairEmiter = false;
-
-        scope.onAppEvent('setCrosshair', function(event, info) {
+          scope.onAppEvent('setCrosshair', function(event, info) {
           // do not need to to this if event is from this panel
           if (info.scope === scope) {
             return;
@@ -45,12 +47,12 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
           }
         });
 
-        scope.onAppEvent('clearCrosshair', function() {
-          var plot = elem.data().plot;
-          if (plot) {
-            plot.clearCrosshair();
-          }
-        });
+          scope.onAppEvent('clearCrosshair', function() {
+            var plot = elem.data().plot;
+            if (plot) {
+              plot.clearCrosshair();
+            }
+          });
 
         // Receive render events
         scope.$on('render',function(event, renderData) {
@@ -141,8 +143,8 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
           // add left axis labels
           if (scope.panel.leftYAxisLabel) {
             var yaxisLabel = $("<div class='axisLabel left-yaxis-label'></div>")
-              .text(scope.panel.leftYAxisLabel)
-              .appendTo(elem);
+            .text(scope.panel.leftYAxisLabel)
+            .appendTo(elem);
 
             yaxisLabel.css("margin-top", yaxisLabel.width() / 2);
           }
@@ -150,8 +152,8 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
           // add right axis labels
           if (scope.panel.rightYAxisLabel) {
             var rightLabel = $("<div class='axisLabel right-yaxis-label'></div>")
-              .text(scope.panel.rightYAxisLabel)
-              .appendTo(elem);
+            .text(scope.panel.rightYAxisLabel)
+            .appendTo(elem);
 
             rightLabel.css("margin-top", rightLabel.width() / 2);
           }
@@ -162,16 +164,19 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
           if (scope.panel.rightYAxisLabel) { gridMargin.right = 20; }
         }
 
+        
+
         // Function for rendering panel
         function render_panel() {
           if (shouldAbortRender()) {
             return;
           }
-
+          
           var panel = scope.panel;
           var stack = panel.stack ? true : null;
-
           // Populate element
+          var randomBoolean = Math.random()<.5
+
           var options = {
             hooks: {
               draw: [drawHook],
@@ -202,32 +207,53 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
                 radius: panel.points ? panel.pointradius : 2
                 // little points when highlight points
               },
-              shadowSize: 1
-            },
-            yaxes: [],
-            xaxis: {},
-            grid: {
-              minBorderMargin: 0,
-              markings: [],
-              backgroundColor: null,
-              borderWidth: 0,
-              hoverable: true,
-              color: '#c8c8c8',
-              margin: { left: 0, right: 0 },
-            },
-            selection: {
-              mode: "x",
-              color: '#666'
-            },
-            crosshair: {
-              mode: panel.tooltip.shared || dashboard.sharedCrosshair ? "x" : null
-            }
-          };
 
-          for (var i = 0; i < data.length; i++) {
-            var series = data[i];
-            series.applySeriesOverrides(panel.seriesOverrides);
-            series.data = series.getFlotPairs(panel.nullPointMode, panel.y_formats);
+              dashes: {
+
+            // show
+            // default: false
+            // Whether to show dashed line for the series
+            //show: true,
+
+            // lineWidth
+            // default: 2
+            // Width of the dashed line in pixels
+            //lineWidth: <number>,
+
+            // dashLength
+            // default: 10
+            // Controls the length of the invdividual dashes and the amount of
+            // space between them.
+            // If this is a number, the dashes and spaces will have that length.
+            // If this is an array, it is read as [ dashLength, spaceLength ]
+            //dashLength: <number> or <array[2]>
+          },
+          shadowSize: 1
+        },
+        yaxes: [],
+        xaxis: {},
+        grid: {
+          minBorderMargin: 0,
+          markings: [],
+          backgroundColor: null,
+          borderWidth: 0,
+          hoverable: true,
+          color: '#c8c8c8',
+          margin: { left: 0, right: 0 },
+        },
+        selection: {
+          mode: "x",
+          color: '#666'
+        },
+        crosshair: {
+          mode: panel.tooltip.shared || dashboard.sharedCrosshair ? "x" : null
+        }
+      };
+
+      for (var i = 0; i < data.length; i++) {
+        var series = data[i];
+        series.applySeriesOverrides(panel.seriesOverrides);
+        series.data = series.getFlotPairs(panel.nullPointMode, panel.y_formats);
 
             // if hidden remove points and disable stack
             if (scope.hiddenSeries[series.alias]) {
@@ -244,11 +270,18 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
           addGridThresholds(options, panel);
           addAnnotations(options);
           configureAxisOptions(data, options);
-
+          
           sortedSeries = _.sortBy(data, function(series) { return series.zindex; });
 
           function callPlot() {
             try {
+              // for (var i = 0; i < sortedSeries.length; i++) {
+              //   if (i % 2 == 0){
+              //     sortedSeries[i]['lines'] = {'show' : true}
+              //   } else {
+              //     sortedSeries[i]['dashes'] = {'show' : true}
+              //   }
+              // }
               $.plot(elem, sortedSeries, options);
             } catch (e) {
               console.log('flotcharts error', e);
@@ -472,67 +505,67 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
 
           switch(scope.panel.y_formats[0]) {
             case 'bytes':
-              url += '&yUnitSystem=binary';
-              break;
+            url += '&yUnitSystem=binary';
+            break;
             case 'bits':
-              url += '&yUnitSystem=binary';
-              break;
+            url += '&yUnitSystem=binary';
+            break;
             case 'bps':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'pps':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'Bps':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'short':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'joule':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'watt':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'ev':
-              url += '&yUnitSystem=si';
-              break;
+            url += '&yUnitSystem=si';
+            break;
             case 'none':
-              url += '&yUnitSystem=none';
-              break;
+            url += '&yUnitSystem=none';
+            break;
           }
 
           switch(scope.panel.nullPointMode) {
             case 'connected':
-              url += '&lineMode=connected';
-              break;
+            url += '&lineMode=connected';
+            break;
             case 'null':
               break; // graphite default lineMode
-            case 'null as zero':
+              case 'null as zero':
               url += "&drawNullAsZero=true";
               break;
+            }
+
+            url += scope.panel.steppedLine ? '&lineMode=staircase' : '';
+
+            elem.html('<img src="' + url + '"></img>');
           }
 
-          url += scope.panel.steppedLine ? '&lineMode=staircase' : '';
+          new GraphTooltip(elem, dashboard, scope, function() {
+            return sortedSeries;
+          });
 
-          elem.html('<img src="' + url + '"></img>');
-        }
-
-        new GraphTooltip(elem, dashboard, scope, function() {
-          return sortedSeries;
-        });
-
-        elem.bind("plotselected", function (event, ranges) {
-          scope.$apply(function() {
-            timeSrv.setTime({
-              from  : moment.utc(ranges.xaxis.from).toDate(),
-              to    : moment.utc(ranges.xaxis.to).toDate(),
+          elem.bind("plotselected", function (event, ranges) {
+            scope.$apply(function() {
+              timeSrv.setTime({
+                from  : moment.utc(ranges.xaxis.from).toDate(),
+                to    : moment.utc(ranges.xaxis.to).toDate(),
+              });
             });
           });
-        });
-      }
-    };
-  });
+        }
+      };
+    });
 
 });

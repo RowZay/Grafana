@@ -72,7 +72,12 @@ function (angular, $, _, appLevelRequire) {
   _.each(module_types, function (type) {
     var module_name = 'grafana.'+type;
     // create the module
-    app.useModule(angular.module(module_name, []));
+    if (module_name == 'directives'){
+      app.useModule(angular.module(module_name, ['angular-bind-html-compile']))
+    }else{
+      app.useModule(angular.module(module_name, []))
+    }
+    ;
     // push it into the apps dependencies
     apps_deps.push(module_name);
   });

@@ -42,6 +42,7 @@ require.config({
     'jquery.flot.time':       '../vendor/jquery/jquery.flot.time',
     'jquery.flot.crosshair':  '../vendor/jquery/jquery.flot.crosshair',
     'jquery.flot.fillbelow':  '../vendor/jquery/jquery.flot.fillbelow',
+    'jquery.flot.dashes':     '../vendor/jquery/jquery.flot.dashes',
 
     modernizr:                '../vendor/modernizr-2.6.1',
 
@@ -81,6 +82,7 @@ require.config({
     // simple dependency declaration
     //
     'jquery.flot':          ['jquery'],
+    'jquery.flot.dashes':   ['jquery', 'jquery.flot'],
     'jquery.flot.pie':      ['jquery', 'jquery.flot'],
     'jquery.flot.events':   ['jquery', 'jquery.flot'],
     'jquery.flot.selection':['jquery', 'jquery.flot'],

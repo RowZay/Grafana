@@ -82,12 +82,15 @@ function (angular, _, kbn) {
         url: this.url + '/api/suggest',
         params: {
           type: type,
-          q: query
+          q: query,
+          // max set to 5000 to retrieve all metrics (there's less than 5000 metrics)
+          max: 5000
         }
       };
       return backendSrv.datasourceRequest(options).then(function(result) {
         return result.data;
       });
+
     };
 
     OpenTSDBDatasource.prototype.testDatasource = function() {
@@ -181,7 +184,6 @@ function (angular, _, kbn) {
           query.tags[key] = templateSrv.replace(query.tags[key]);
         }
       }
-
       return query;
     }
 

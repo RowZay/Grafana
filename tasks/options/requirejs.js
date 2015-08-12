@@ -73,7 +73,9 @@ module.exports = function(config,grunt) {
     var panelPath = config.srcDir+'/app/panels';
 
     // create a module for each directory in public/app/panels/
+
     fs.readdirSync(panelPath).forEach(function (panelName) {
+      debugger;
       requireModules[0].include.push('panels/'+panelName+'/module');
       requireModules[0].include.push('text!panels/'+panelName+'/module.html');
     });

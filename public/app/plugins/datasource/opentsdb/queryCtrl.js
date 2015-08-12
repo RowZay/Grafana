@@ -48,6 +48,16 @@ function (angular, _, kbn) {
         .then(callback);
     };
 
+    $scope.displayMetrics = function() {
+      $scope.datasource
+        .performSuggestQuery("", 'metrics')
+        .then(function(data){
+          $scope.all_metrics = data;
+        });
+
+    };
+    
+
     $scope.suggestTagKeys = function(query, callback) {
       $scope.datasource
         .performSuggestQuery(query, 'tagk')

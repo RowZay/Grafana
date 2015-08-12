@@ -47,6 +47,10 @@ function (angular, _, config) {
         $scope.panel.targets.push({target: ''});
       };
 
+      $scope.addDataQueryFilled = function(target_metric) {
+        $scope.panel.targets.push({target: '', metric:target_metric, downsampleAggregator: "avg", aggregator: "sum", errors : {} });
+      };
+
       $scope.removeDataQuery = function (query) {
         $scope.panel.targets = _.without($scope.panel.targets, query);
         $scope.get_data();

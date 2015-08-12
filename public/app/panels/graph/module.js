@@ -39,6 +39,7 @@ function (angular, app, $, _, kbn, moment, TimeSeries, PanelMeta) {
     $scope.panelMeta.addExtendedMenuItem('Export CSV', '', 'exportCsv()');
     $scope.panelMeta.addExtendedMenuItem('Toggle legend', '', 'toggleLegend()');
 
+    
     // Set and populate defaults
     var _d = {
       // datasource name, null = default datasource
@@ -64,6 +65,10 @@ function (angular, app, $, _, kbn, moment, TimeSeries, PanelMeta) {
         threshold1Color: 'rgba(216, 200, 27, 0.27)',
         threshold2Color: 'rgba(234, 112, 112, 0.22)'
       },
+      //show/hide dashes
+      
+
+      dashes       : false,
       // show/hide lines
       lines         : true,
       // fill factor

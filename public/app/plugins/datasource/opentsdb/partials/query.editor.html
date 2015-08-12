@@ -1,4 +1,13 @@
+
 <div class="editor-row" style="margin-top: 10px;">
+  <div ng-controller="OpenTSDBQueryCtrl"> 
+       <button ng-click='displayMetrics()' ui-draggable="true">Display Metrics</button>
+        <hr>
+        <div class="btn btn-primary" ng-repeat="target in all_metrics" data-drag="true" ng-model="target.metric"
+        data-jqyoui-options="{revert: 'invalid'}" jqyoui-draggable="{animate:true}" ui-draggable="true" 
+        ng-Click="addDataQueryFilled(target)" ng-controller="OpenTSDBQueryCtrl"> {{target}}
+  </div>
+</div>
 
   <div  ng-repeat="target in panel.targets"
         style="margin-bottom: 10px;"
@@ -94,6 +103,62 @@
                  />
         </li>
 
+        <li class="tight-form-item"  ng-if="panel.type == 'graph'">
+          <editor-checkbox text="Expected" model="target.shouldComputeExpected" change="targetBlur()"></editor-checkbox>
+        </li>
+        <li class="tight-form-item" ng-hide="!target.shouldComputeExpected">
+          From:
+        </li>
+        <li>
+          <input type="text"
+                 class="tight-form-input input-large"
+                 ng-hide="!target.shouldComputeExpected"
+                 spellcheck='false'
+                 data-min-length=0 data-items=100
+                 />
+        </li>
+        <li class="tight-form-item" ng-hide="!target.shouldComputeExpected">
+          To:
+        </li>
+        <li>
+          <input type="text"
+                 class="tight-form-input input-large"
+                 ng-hide="!target.shouldComputeExpected"
+                 spellcheck='false'
+                 data-min-length=0 data-items=100
+                 />
+        </li>
+
+        
+        <li class="tight-form-item" ng-if="panel.type == 'table'">
+          Row:
+          <tip>Put in the index of the row you want your metric in</tip>
+        </li>
+        <li ng-if="panel.type == 'table'">
+          <input type="number"
+                 class="tight-form-input input-large"
+                 ng-model="target.row"
+                 placeholder="row"
+                 min="0" max="99"
+                 ng-blur="targetBlur()"
+                 />
+        </li>
+
+        <li class="tight-form-item" ng-if="panel.type == 'table'">
+          Column:
+          <tip>Put in the index of the column you want your metric in</tip>
+        </li>
+        <li ng-if="panel.type == 'table'">
+          <input type="number"
+                 class="tight-form-input input-large"
+                 ng-model="target.column"
+                 placeholder="column"
+                 min="0" max="99"
+                 ng-blur="targetBlur()"
+                 />
+        </li>
+
+      
       </ul>
 
       <div class="clearfix"></div>

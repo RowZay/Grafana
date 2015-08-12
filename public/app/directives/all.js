@@ -19,4 +19,6 @@ define([
   './giveFocus',
   './annotationTooltip',
   './passwordStrenght',
+  './bower_components/angular-bind-html-compile/angular-bind-html-compile',
+  './row-column-names'
 ], function () {});

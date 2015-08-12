@@ -77,7 +77,7 @@ function (angular, _) {
 
     this.replace = function(target, scopedVars) {
       if (!target) { return target; }
-
+      
       var value;
       this._regex.lastIndex = 0;
 
