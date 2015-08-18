@@ -51,7 +51,12 @@ define([
     });
   });
 
-
+  describe('kbn roundValue', function() {
+    it('should should handle null value', function() {
+      var str = kbn.roundValue(null, 2);
+      expect(str).to.be(null);
+    });
+  });
 
   describe('calculateInterval', function() {
     it('1h 100 resultion', function() {
@@ -90,6 +95,13 @@ define([
     it('should handle negative time', function() {
       var date = kbn.parseDateMath('-2d', new Date(2014,1,5));
       expect(date.getTime()).to.equal(new Date(2014, 1, 3).getTime());
+    });
+
+    it('should handle today', function() {
+      var date = kbn.parseDate('today');
+      var today = new Date();
+      today.setHours(0,0,0,0);
+      expect(date.getTime()).to.equal(today.getTime());
     });
 
     it('should handle multiple math expressions', function() {

@@ -59,26 +59,40 @@ function (angular, kbn, _) {
         return info;
       };
 
-      this.getPanelLinkAnchorInfo = function(link) {
+      this.getPanelLinkAnchorInfo = function(link, scopedVars) {
         var info = {};
         if (link.type === 'absolute') {
-          info.target = '_blank';
-          info.href = templateSrv.replace(link.url || '');
-          info.title = templateSrv.replace(link.title || '');
+          info.target = link.targetBlank ? '_blank' : '_self';
+          info.href = templateSrv.replace(link.url || '', scopedVars);
+          info.title = templateSrv.replace(link.title || '', scopedVars);
           info.href += '?';
         }
+        else if (link.dashUri) {
+          info.href = 'dashboard/' + link.dashUri + '?';
+          info.title = templateSrv.replace(link.title || '', scopedVars);
+          info.target = link.targetBlank ? '_blank' : '';
+        }
         else {
-          info.title = templateSrv.replace(link.title || '');
+          info.title = templateSrv.replace(link.title || '', scopedVars);
           var slug = kbn.slugifyForUrl(link.dashboard || '');
           info.href = 'dashboard/db/' + slug + '?';
         }
 
-        var range = timeSrv.timeRangeForUrl();
-        info.href += 'from=' + range.from;
-        info.href += '&to=' + range.to;
+        var params = {};
 
+        if (link.keepTime) {
+          var range = timeSrv.timeRangeForUrl();
+          params['from'] = range.from;
+          params['to'] = range.to;
+        }
+
+        if (link.includeVars) {
+          templateSrv.fillVariableValuesForUrl(params, scopedVars);
+        }
+
+        info.href = this.addParamsToUrl(info.href, params);
         if (link.params) {
-          info.href += "&" + templateSrv.replace(link.params);
+          info.href += "&" + templateSrv.replace(link.params, scopedVars);
         }
 
         return info;

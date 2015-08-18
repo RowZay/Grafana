@@ -94,6 +94,9 @@ var (
 	AuthProxyHeaderProperty string
 	AuthProxyAutoSignUp     bool
 
+	// Basic Auth
+	BasicAuthEnabled bool
+
 	// Session settings.
 	SessionOptions session.Options
 
@@ -113,6 +116,10 @@ var (
 
 	ReportingEnabled  bool
 	GoogleAnalyticsId string
+
+	// LDAP
+	LdapEnabled    bool
+	LdapConfigFile string
 
 	// SMTP email settings
 	Smtp SmtpSettings
@@ -266,7 +273,7 @@ func loadSpecifedConfigFile(configFile string) {
 			}
 			defaultKey, err := defaultSec.GetKey(key.Name())
 			if err != nil {
-				log.Error(3, "Unknown config key %s defined in section %s, in file", key.Name(), section.Name(), configFile)
+				log.Error(3, "Unknown config key %s defined in section %s, in file %s", key.Name(), section.Name(), configFile)
 				continue
 			}
 			defaultKey.SetValue(key.Value())
@@ -384,7 +391,7 @@ func NewConfigContext(args *CommandLineArgs) {
 	AllowUserSignUp = users.Key("allow_sign_up").MustBool(true)
 	AllowUserOrgCreate = users.Key("allow_org_create").MustBool(true)
 	AutoAssignOrg = users.Key("auto_assign_org").MustBool(true)
-	AutoAssignOrgRole = users.Key("auto_assign_org_role").In("Editor", []string{"Editor", "Admin", "Viewer"})
+	AutoAssignOrgRole = users.Key("auto_assign_org_role").In("Editor", []string{"Editor", "Admin", "Read Only Editor", "Viewer"})
 
 	// anonymous access
 	AnonymousEnabled = Cfg.Section("auth.anonymous").Key("enabled").MustBool(false)
@@ -398,6 +405,9 @@ func NewConfigContext(args *CommandLineArgs) {
 	AuthProxyHeaderProperty = authProxy.Key("header_property").String()
 	AuthProxyAutoSignUp = authProxy.Key("auto_sign_up").MustBool(true)
 
+	authBasic := Cfg.Section("auth.basic")
+	BasicAuthEnabled = authBasic.Key("enabled").MustBool(true)
+
 	// PhantomJS rendering
 	ImagesDir = filepath.Join(DataPath, "png")
 	PhantomDir = filepath.Join(HomePath, "vendor/phantomjs")
@@ -405,6 +415,10 @@ func NewConfigContext(args *CommandLineArgs) {
 	analytics := Cfg.Section("analytics")
 	ReportingEnabled = analytics.Key("reporting_enabled").MustBool(true)
 	GoogleAnalyticsId = analytics.Key("google_analytics_ua_id").String()
+
+	ldapSec := Cfg.Section("auth.ldap")
+	LdapEnabled = ldapSec.Key("enabled").MustBool(false)
+	LdapConfigFile = ldapSec.Key("config_file").String()
 
 	readSessionConfig()
 	readSmtpSettings()

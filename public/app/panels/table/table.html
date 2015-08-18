@@ -1,0 +1,52 @@
+<div class="table-visualization"> 
+    <div class="table-vis-overflow-container">
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th class="fixed-table-header"
+                    ng-disabled="!panel.allowSorting"
+                    ng-repeat="column in panel.columns"> 
+                    <div contenteditable ng-bind-html="panel.columnNames[column[0]]"></div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="row in panel.rows">
+                <td ng-repeat="column in panel.columns">
+
+                    <b><div align="center" ng-if="column == 0"contenteditable ng-bind-html="panel.rowNames[row[0]]"></div></b>
+
+                    <div bind-html-compile="tableData"></div>
+
+                </td>
+            </tr>
+        </tbody>
+
+        
+        <tfoot ng-if="checked">
+            <tr>
+                <th ng-repeat="column in panel.columns">
+                    <div ng-if="column == 0"> Total </div>
+                    <div ng-if="column != 0" bind-html-compile="total"></div>
+                </th>
+            </tr>
+        </tfoot>
+
+
+    </table>
+    <br>
+
+    <div align="center" ng-hide="!editMode">
+        <label>Display Total: 
+            <input type="checkbox" ng-model="checked" align="center">
+        </label>
+    </div>
+    <div align="center" ng-if="editMode">
+        <br>
+        <input type="number" placeholder="rows" ng-model="panel.numberOfRows" min="0" max="99" ng-change="updateRows()" required>
+        <input type="number" placeholder="columns" ng-model="panel.numberOfColumns" min="0" max="99" ng-change="updateColumns()" required>
+    </div>
+
+</div>
+</div>

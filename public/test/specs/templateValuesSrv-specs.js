@@ -52,23 +52,25 @@ define([
       var variable = {
         name: 'apps',
         multi: true,
-        current: {text: "test", value: "test"},
-        options: [{text: "test", value: "test"}]
+        current: {text: "val1", value: "val1"},
+        options: [{text: "val1", value: "val1"}, {text: 'val2', value: 'val2'}]
       };
 
       beforeEach(function() {
         var dashboard = { templating: { list: [variable] } };
         var urlParams = {};
-        urlParams["var-apps"] = ["new", "other"];
+        urlParams["var-apps"] = ["val1", "val2"];
         ctx.$location.search = sinon.stub().returns(urlParams);
         ctx.service.init(dashboard);
       });
 
       it('should update current value', function() {
         expect(variable.current.value.length).to.be(2);
-        expect(variable.current.value[0]).to.be("new");
-        expect(variable.current.value[1]).to.be("other");
-        expect(variable.current.text).to.be("new, other");
+        expect(variable.current.value[0]).to.be("val1");
+        expect(variable.current.value[1]).to.be("val2");
+        expect(variable.current.text).to.be("val1 + val2");
+        expect(variable.options[0].selected).to.be(true);
+        expect(variable.options[1].selected).to.be(true);
       });
     });
 
@@ -105,6 +107,31 @@ define([
         expect(scenario.variable.options[0].value).to.be('1s');
       });
     });
+
+    describeUpdateVariable('query variable with empty current object and refresh', function(scenario) {
+      scenario.setup(function() {
+        scenario.variable = { type: 'query', query: '', name: 'test', current: {} };
+        scenario.queryResult = [{text: 'backend1'}, {text: 'backend2'}];
+      });
+
+      it('should set current value to first option', function() {
+        expect(scenario.variable.options.length).to.be(2);
+        expect(scenario.variable.current.value).to.be('backend1');
+      });
+    });
+
+    describeUpdateVariable('interval variable without auto', function(scenario) {
+      scenario.setup(function() {
+        scenario.variable = { type: 'interval', query: '1s,2h,5h,1d', name: 'test' };
+      });
+
+      it('should update options array', function() {
+        expect(scenario.variable.options.length).to.be(4);
+        expect(scenario.variable.options[0].text).to.be('1s');
+        expect(scenario.variable.options[0].value).to.be('1s');
+      });
+    });
+
 
     describeUpdateVariable('interval variable with auto', function(scenario) {
       scenario.setup(function() {
@@ -171,7 +198,7 @@ define([
     describeUpdateVariable('and existing value still exists in options', function(scenario) {
       scenario.setup(function() {
         scenario.variable = { type: 'query', query: 'apps.*', name: 'test' };
-        scenario.variable.current = { text: 'backend2'};
+        scenario.variable.current = { value: 'backend2', text: 'backend2'};
         scenario.queryResult = [{text: 'backend1'}, {text: 'backend2'}];
       });
 
@@ -199,8 +226,9 @@ define([
         scenario.queryResult = [{text: 'apps.backend.backend_01.counters.req'}, {text: 'apps.backend.backend_02.counters.req'}];
       });
 
-      it('should not add non matching items', function() {
-        expect(scenario.variable.options.length).to.be(0);
+      it('should not add non matching items, None option should be added instead', function() {
+        expect(scenario.variable.options.length).to.be(1);
+        expect(scenario.variable.options[0].isNone).to.be(true);
       });
     });
 
@@ -291,6 +319,19 @@ define([
 
       it('should add empty glob', function() {
         expect(scenario.variable.options[0].value).to.be('(backend1|backend2|backend3)');
+      });
+    });
+
+    describeUpdateVariable('with include all regex values and values require escaping', function(scenario) {
+      scenario.setup(function() {
+        scenario.variable = { type: 'query', query: 'apps.*', name: 'test', includeAll: true, allFormat: 'regex values' };
+        scenario.queryResult = [{text: '/root'}, {text: '/var'}, { text: '/lib'}];
+      });
+
+      it('should regex escape options', function() {
+        expect(scenario.variable.options[0].value).to.be('(\\/lib|\\/root|\\/var)');
+        expect(scenario.variable.options[1].value).to.be('\\/lib');
+        expect(scenario.variable.options[1].text).to.be('/lib');
       });
     });
 

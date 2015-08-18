@@ -60,8 +60,25 @@ define([
         expect(ctx.scope.target.tags[0].value).to.be('server1');
       });
 
+      it('should set tag operator', function() {
+        expect(ctx.scope.target.tags[0].operator).to.be('=');
+      });
+
       it('should add plus button for another filter', function() {
         expect(ctx.scope.tagSegments[3].fake).to.be(true);
+      });
+    });
+
+    describe('when last tag value segment is updated to regex', function() {
+      beforeEach(function() {
+        ctx.scope.init();
+        ctx.scope.tagSegmentUpdated({value: 'asd', type: 'plus-button'}, 0);
+        ctx.scope.tagSegmentUpdated({value: '/server.*/', type: 'value'}, 2);
+      });
+
+      it('should update operator', function() {
+        expect(ctx.scope.tagSegments[1].value).to.be('=~');
+        expect(ctx.scope.target.tags[0].operator).to.be('=~');
       });
     });
 

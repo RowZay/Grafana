@@ -56,7 +56,7 @@ function (angular, $, _) {
 
         if ($scope.panel.links) {
           _.each($scope.panel.links, function(link) {
-            var info = linkSrv.getPanelLinkAnchorInfo(link);
+            var info = linkSrv.getPanelLinkAnchorInfo(link, $scope.panel.scopedVars);
             menu.push({text: info.title, href: info.href, target: info.target });
           });
         }
@@ -154,6 +154,9 @@ function (angular, $, _) {
               }
               if (panelLeftPos + menuLeftPos < 0) {
                 menuLeftPos = 0;
+              }
+              if ($scope.fullscreen) {
+                menuHeight = -(menuHeight/2);
               }
 
               $menu.css({'left': menuLeftPos, top: -menuHeight});
