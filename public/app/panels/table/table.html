@@ -9,6 +9,12 @@
                     ng-repeat="column in panel.columns"> 
                     <div contenteditable ng-bind-html="panel.columnNames[column[0]]"></div>
                 </th>
+                <th ng-if="totalRowsChecked">
+                    <div>Total</div>
+                </th>
+                <th ng-if="averageRowsChecked">
+                    <div>Average</div>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -20,15 +26,29 @@
                     <div bind-html-compile="tableData"></div>
 
                 </td>
+                <td ng-if="totalRowsChecked" >
+                    <div bind-html-compile="rowTotal"></div>
+                </td>
+
+                <td ng-if="averageRowsChecked" >
+                    <div bind-html-compile="rowAverage"></div>
+                </td>
             </tr>
         </tbody>
 
         
-        <tfoot ng-if="checked">
-            <tr>
+        <tfoot >
+            <tr ng-if="totalColumnsChecked">
                 <th ng-repeat="column in panel.columns">
                     <div ng-if="column == 0"> Total </div>
                     <div ng-if="column != 0" bind-html-compile="total"></div>
+                </th>
+            </tr>
+
+            <tr ng-if="averageColumnsChecked">
+                <th ng-repeat="column in panel.columns">
+                    <div ng-if="column == 0"> Average </div>
+                    <div ng-if="column != 0" bind-html-compile="average"></div>
                 </th>
             </tr>
         </tfoot>
@@ -38,10 +58,22 @@
     <br>
 
     <div align="center" ng-hide="!editMode">
-        <label>Display Total: 
-            <input type="checkbox" ng-model="checked" align="center">
+        <label>Display Total Columns: 
+            <input type="checkbox" ng-model="totalColumnsChecked" align="center">
+        </label>
+         <label>Display Total Rows: 
+            <input type="checkbox" ng-model="totalRowsChecked" align="center">
+        </label>
+         <label>Display Average Columns: 
+            <input type="checkbox" ng-model="averageColumnsChecked" align="center">
+        </label>
+         <label>Display Average Rows: 
+            <input type="checkbox" ng-model="averageRowsChecked" align="center">
         </label>
     </div>
+
+
+
     <div align="center" ng-if="editMode">
         <br>
         <input type="number" placeholder="rows" ng-model="panel.numberOfRows" min="0" max="99" ng-change="updateRows()" required>

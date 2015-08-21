@@ -21,7 +21,7 @@ function (_) {
         'dashlist':   { path: 'panels/dashlist',   name: 'Dashboard list' },
         'piechart':   { path: 'panels/piechart',   name: "Pie chart" },
         'table':      { path: 'panels/table',      name: "Table" },
-        'scatterplot': { path: 'panels/scatterplot', name: "Scatter plot"},
+        'scatter': { path: 'panels/scatter', name: "Scatter plot"},
       },
       new_panel_title: 'no title (click here)',
       plugins: {},

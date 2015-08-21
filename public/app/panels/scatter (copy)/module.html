@@ -1,9 +1,9 @@
 <grafana-panel>
 
-	<div class="scatter-wrapper" ng-class="{'graph-legend-rightside': panel.legend.rightSide}">
-		<div class="scatter-canvas-wrapper">
+	<div class="graph-wrapper" ng-class="{'graph-legend-rightside': panel.legend.rightSide}">
+		<div class="graph-canvas-wrapper">
 
-			<!-- <span class="scatter&#45;time&#45;info" ng&#45;if="panelMeta.timeInfo"> -->
+			<!-- <span class="graph&#45;time&#45;info" ng&#45;if="panelMeta.timeInfo"> -->
 			<!-- 	<i class="fa fa&#45;clock&#45;o"></i> {{panelMeta.timeInfo}} -->
 		  <!-- </span> -->
 
@@ -11,10 +11,10 @@
 				<span class="small" ng-show="!datapointsCount">
 					No datapoints <tip>No datapoints returned from metric query</tip>
 				</span>
-				<span class="small" ng-show="datapointsOutside">Datapoints outside time range <tip>Can be caused by timezone mismatch between browser and scatterite server</tip></span>
+				<span class="small" ng-show="datapointsOutside">Datapoints outside time range <tip>Can be caused by timezone mismatch between browser and graphite server</tip></span>
 			</div>
 
-			<div grafana-scatter class="histogram-chart">
+			<div grafana-graph class="histogram-chart">
 			</div>
 
 		</div>

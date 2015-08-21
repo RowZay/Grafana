@@ -21,7 +21,7 @@ define([
 
     var module = angular.module('grafana.directives');
     
-    module.directive('grafanaScatter', function($rootScope, timeSrv) {                // WHAT ARE THOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOSE
+    module.directive('grafanaGraph', function($rootScope, timeSrv) {
       return {
         restrict: 'A',
         template: '<div> </div>',
@@ -40,7 +40,6 @@ define([
           }
 
           if(dashboard.sharedCrosshair) {
-          
             var plot = elem.data().plot;
             if (plot) {
               plot.setCrosshair({ x: info.pos.x, y: info.pos.y });
@@ -119,46 +118,46 @@ define([
           }
         }
 
-        // function drawHook(plot) {
-        //   // Update legend values
-        //   var yaxis = plot.getYAxes();
-        //   for (var i = 0; i < data.length; i++) {
-        //     var series = data[i];
-        //     var axis = yaxis[series.yaxis - 1];
-        //     var formater = kbn.valueFormats[scope.panel.y_formats[series.yaxis - 1]];
+        function drawHook(plot) {
+          // Update legend values
+          var yaxis = plot.getYAxes();
+          for (var i = 0; i < data.length; i++) {
+            var series = data[i];
+            var axis = yaxis[series.yaxis - 1];
+            var formater = kbn.valueFormats[scope.panel.y_formats[series.yaxis - 1]];
 
-        //     // decimal override
-        //     if (_.isNumber(scope.panel.decimals)) {
-        //       series.updateLegendValues(formater, scope.panel.decimals, null);
-        //     } else {
-        //       // auto decimals
-        //       // legend and tooltip gets one more decimal precision
-        //       // than graph legend ticks
-        //       var tickDecimals = (axis.tickDecimals || -1) + 1;
-        //       series.updateLegendValues(formater, tickDecimals, axis.scaledDecimals + 2);
-        //     }
+            // decimal override
+            if (_.isNumber(scope.panel.decimals)) {
+              series.updateLegendValues(formater, scope.panel.decimals, null);
+            } else {
+              // auto decimals
+              // legend and tooltip gets one more decimal precision
+              // than graph legend ticks
+              var tickDecimals = (axis.tickDecimals || -1) + 1;
+              series.updateLegendValues(formater, tickDecimals, axis.scaledDecimals + 2);
+            }
 
-        //     if(!scope.$$phase) { scope.$digest(); }
-        //   }
+            if(!scope.$$phase) { scope.$digest(); }
+          }
 
-        //   // add left axis labels
-        //   if (scope.panel.leftYAxisLabel) {
-        //     var yaxisLabel = $("<div class='axisLabel left-yaxis-label'></div>")
-        //     .text(scope.panel.leftYAxisLabel)
-        //     .appendTo(elem);
+          // add left axis labels
+          if (scope.panel.leftYAxisLabel) {
+            var yaxisLabel = $("<div class='axisLabel left-yaxis-label'></div>")
+            .text(scope.panel.leftYAxisLabel)
+            .appendTo(elem);
 
-        //     yaxisLabel.css("margin-top", yaxisLabel.width() / 2);
-        //   }
+            yaxisLabel.css("margin-top", yaxisLabel.width() / 2);
+          }
 
-        //   // add right axis labels
-        //   if (scope.panel.rightYAxisLabel) {
-        //     var rightLabel = $("<div class='axisLabel right-yaxis-label'></div>")
-        //     .text(scope.panel.rightYAxisLabel)
-        //     .appendTo(elem);
+          // add right axis labels
+          if (scope.panel.rightYAxisLabel) {
+            var rightLabel = $("<div class='axisLabel right-yaxis-label'></div>")
+            .text(scope.panel.rightYAxisLabel)
+            .appendTo(elem);
 
-        //     rightLabel.css("margin-top", rightLabel.width() / 2);
-        //   }
-        // }
+            rightLabel.css("margin-top", rightLabel.width() / 2);
+          }
+        }
 
         function processOffsetHook(plot, gridMargin) {
           if (scope.panel.leftYAxisLabel) { gridMargin.left = 20; }
@@ -169,7 +168,6 @@ define([
 
         // Function for rendering panel
         function render_panel() {
-
           if (shouldAbortRender()) {
             return;
           }
@@ -180,10 +178,10 @@ define([
           var randomBoolean = Math.random()<.5
 
           var options = {
-            // hooks: {
-            //   draw: [drawHook],
-            //   processOffset: [processOffsetHook],
-            // },
+            hooks: {
+              draw: [drawHook],
+              processOffset: [processOffsetHook],
+            },
             legend: { show: false },
             series: {
               stackpercent: panel.stack ? panel.percentage : false,
@@ -247,82 +245,36 @@ define([
           mode: "x",
           color: '#666'
         },
-        // crosshair: {
-        //   mode: panel.tooltip.shared || dashboard.sharedCrosshair ? "x" : null
-        // }
+        crosshair: {
+          mode: panel.tooltip.shared || dashboard.sharedCrosshair ? "x" : null
+        }
       };
 
-      //for (var i = 0; i < data.length; i++) {
-        var series = data[0];
-        var series_2 = data[1];
-        //series.applySeriesOverrides(panel.seriesOverrides);
-        //series.data = series.getFlotPairs(panel.nullPointMode, panel.y_formats);
-      
-        var pairs = getPairs(series, series_2)
-        series.data = pairs[0]
-        series.time = pairs[1] 
+      for (var i = 0; i < data.length; i++) {
+        var series = data[i];
+        series.applySeriesOverrides(panel.seriesOverrides);
+        series.data = series.getFlotPairs(panel.nullPointMode, panel.y_formats);
 
             // if hidden remove points and disable stack
-            // if (scope.hiddenSeries[series.alias]) {
-            //   series.data = [];
-            //   series.stack = false;
-            // }
-         // }
-
-         if (data.length && data[0].stats.timeStep) {
-          options.series.bars.barWidth = data[0].stats.timeStep / 1.5;
-        }
-
-        addTimeAxis(options);
-        addGridThresholds(options, panel);
-        addAnnotations(options);
-        configureAxisOptions(data, options);
-        
-        //sortedSeries = _.sortBy(data, function(series) { return series.zindex; });
-        sortedSeries = series.data;
-        function getPairs(series_1, series_2){
-          var currentValue_1
-          var currentValue_2
-          var currentTime
-          var result = []
-          var time = []
-
-          for (var i = 0; i < series_1.datapoints.length; i++) {
-            currentValue_1 = series_1.datapoints[i][0];
-            currentValue_2 = series_2.datapoints[i][0];
-            currentTime = series_1.datapoints[i][1];
-
-            // if (currentValue === null) {
-            //   if (ignoreNulls) { continue; }
-            //   if (nullAsZero) {
-            //     currentValue = 0;
-            //   }
-            // }
-
-            // if (currentValue !== null) {
-            //   if (_.isNumber(currentValue)) {
-            //     this.stats.total += currentValue;
-            //     this.allIsNull = false;
-            //   }
-
-            //   if (currentValue > this.stats.max) {
-            //     this.stats.max = currentValue;
-            //   }
-
-            //   if (currentValue < this.stats.min) {
-            //     this.stats.min = currentValue;
-            //   }
-            // }
-
-            result.push([currentValue_1, currentValue_2]);
-            time.push(currentTime)
+            if (scope.hiddenSeries[series.alias]) {
+              series.data = [];
+              series.stack = false;
+            }
           }
 
-          return [result,time]
-        }
+          if (data.length && data[0].stats.timeStep) {
+            options.series.bars.barWidth = data[0].stats.timeStep / 1.5;
+          }
 
-        function callPlot(incrementRenderCounter) {
-          try {
+          addTimeAxis(options);
+          addGridThresholds(options, panel);
+          addAnnotations(options);
+          configureAxisOptions(data, options);
+          
+          sortedSeries = _.sortBy(data, function(series) { return series.zindex; });
+
+          function callPlot(incrementRenderCounter) {
+            try {
               // for (var i = 0; i < sortedSeries.length; i++) {
               //   if (i % 2 == 0){
               //     sortedSeries[i]['lines'] = {'show' : true}
@@ -330,23 +282,7 @@ define([
               //     sortedSeries[i]['dashes'] = {'show' : true}
               //   }
               // }
-              options = {
-                series: {
-                  points : { 
-                    show: true,
-                    radius: 1
-                  }
-                },
-                grid: {
-                  hoverable : true
-                }
-              };
-              $.plot(elem, [sortedSeries], options);
-              // var xaxisLabel = $("<div class='axisLabel xaxisLabel'></div>").text("My X Label").appendTo(elem);
-
-              // var yaxisLabel = $("<div class='axisLabel yaxisLabel'></div>").text("Response Time (ms)").appendTo(elem);
-              // yaxisLabel.css("margin-top", yaxisLabel.width() / 2 - 20);
-
+              $.plot(elem, sortedSeries, options);
             } catch (e) {
               console.log('flotcharts error', e);
             }

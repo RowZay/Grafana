@@ -6,7 +6,7 @@ define([
 ], function(angular, jquery, app, _) {
   'use strict';
 
-  var module = angular.module('grafana.panels.scatter', []);
+  var module = angular.module('grafana.panels.graph', []);
   app.useModule(module);
 
   module.controller('SeriesOverridesCtrl', function($scope, $element, popoverSrv) {

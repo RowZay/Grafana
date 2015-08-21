@@ -188,6 +188,10 @@
                 for (var i=1; i< scope.panel.columns.length; ++i){
                   total[i] = 0
                 }
+                var totalRow = []
+                for (var i=1; i< scope.panel.rows.length+1; ++i){
+                  totalRow[i] = 0
+                }
                 
                 //iterates through data in alphabetical order, retrieving the most recent value
                 _.forIn(data.values[data.values.length - 1 ], function(value,key){
@@ -221,7 +225,8 @@
                         
                         var colorStyle = getCellColorStyle(value, i);
                         html += '<div ng-if="column == ' + scope.panel.targets[i].column + ' && row == ' + (scope.panel.targets[i].row-1) + '" ' + colorStyle.textAndBackground + ' title="' + key +  "\n" + scope.time +  '" align="center"' +'>' + value  + '</div>'
-                        total[scope.panel.targets[i].column] += value
+                        total[scope.panel.targets[i].column] += value;
+                        totalRow[scope.panel.targets[i].row] += value;
                       }
                     }
                   }
@@ -230,12 +235,25 @@
 
               //Total of each column
               var totalHtml = ""
+              var averageHtml = ''
+              var totalRowHtml = ""
+              var averageRowHtml = ''
+
               for (var i=1; i<scope.panel.columns.length; ++i){
                 totalHtml += '<div ng-if="column == ' + i + '">' + total[i] + '</div>'
+                averageHtml += '<div ng-if="column == ' + i + '">' + total[i]/scope.panel.rows.length + '</div>'
               }
+
+              for (var i=1; i<scope.panel.rows.length+1; ++i){
+                totalRowHtml += '<div ng-if="row == ' + (i-1) + '">' + totalRow[i] + '</div>'
+                averageRowHtml += '<div ng-if="row == ' + (i-1) + '">' + totalRow[i]/(scope.panel.columns.length-1) + '</div>'
+              }
+              console.log(totalRow)
               scope.tableData = html;
               scope.total = totalHtml;
-
+              scope.average = averageHtml;
+              scope.rowTotal = totalRowHtml;
+              scope.rowAverage = averageRowHtml;
 
             }
 

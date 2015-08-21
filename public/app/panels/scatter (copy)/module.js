@@ -14,26 +14,26 @@ define([
 function (angular, app, $, _, kbn, moment, TimeSeries, PanelMeta) {
   'use strict';
 
-  var module = angular.module('grafana.panels.scatter');
+  var module = angular.module('grafana.panels.graph');
 
-  module.directive('grafanaPanelScatter', function() {
+  module.directive('grafanaPanelGraph', function() {
     return {
-      controller: 'ScatterCtrl',
-      templateUrl: 'app/panels/scatter/module.html',
+      controller: 'GraphCtrl',
+      templateUrl: 'app/panels/graph/module.html',
     };
   });
 
-  module.controller('ScatterCtrl', function($scope, $rootScope, panelSrv, annotationsSrv, panelHelper, $q) {
+  module.controller('GraphCtrl', function($scope, $rootScope, panelSrv, annotationsSrv, panelHelper, $q) {
 
     $scope.panelMeta = new PanelMeta({
-      panelName: 'Scatter plot',
+      panelName: 'Graph',
       editIcon:  "fa fa-bar-chart",
       fullscreen: true,
       metricsEditor: true,
     });
 
-    $scope.panelMeta.addEditorTab('Axes & Grid', 'app/panels/scatter/axisEditor.html');
-    $scope.panelMeta.addEditorTab('Display Styles', 'app/panels/scatter/styleEditor.html');
+    $scope.panelMeta.addEditorTab('Axes & Grid', 'app/panels/graph/axisEditor.html');
+    $scope.panelMeta.addEditorTab('Display Styles', 'app/panels/graph/styleEditor.html');
     $scope.panelMeta.addEditorTab('Time range', 'app/features/panel/partials/panelTime.html');
 
     $scope.panelMeta.addExtendedMenuItem('Export CSV', '', 'exportCsv()');

@@ -10,9 +10,9 @@ define([
 function (angular, app, _, kbn, $) {
   'use strict';
 
-  var module = angular.module('grafana.panels.scatter');
+  var module = angular.module('grafana.panels.graph');
 
-  module.directive('scatterLegend', function(popoverSrv) {
+  module.directive('graphLegend', function(popoverSrv) {
 
     return {
       link: function(scope, elem) {
@@ -42,7 +42,7 @@ function (angular, app, _, kbn, $) {
           popoverScope.series = seriesInfo;
           popoverSrv.show({
             element: el,
-            templateUrl:  'app/panels/scatter/legend.popover.html',
+            templateUrl:  'app/panels/scatterplot/legend.popover.html',
             scope: popoverScope
           });
         }

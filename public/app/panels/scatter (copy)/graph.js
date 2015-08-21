@@ -21,7 +21,7 @@ define([
 
     var module = angular.module('grafana.directives');
     
-    module.directive('grafanaScatter', function($rootScope, timeSrv) {                // WHAT ARE THOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOSE
+    module.directive('grafanaGraph', function($rootScope, timeSrv) {                // WHAT ARE THOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOSE
       return {
         restrict: 'A',
         template: '<div> </div>',
